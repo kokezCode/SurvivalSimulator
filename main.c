@@ -58,6 +58,9 @@ int main(int argc, char *argv[]) {
 		
 		// Seviye Atlama
 		if (xp >= xpSiniri) {
+			
+			if (seviye < 3) {
+			
 			seviye ++;
 			xp = 0;
 			xpSiniri += 30;
@@ -68,11 +71,29 @@ int main(int argc, char *argv[]) {
 			if (maxSaglik > 100) maxSaglik = 100;
 			if (maxEnerji > 100) maxEnerji = 100;
 			
-			saglik = maxSaglik;
-			enerji = maxEnerji;
 			
 			printf("\n*** TEBRIKLER! SEVIYE %d OLDUNUZ. ***\n", seviye);
 			printf("Kapasiten artti! Yeni Max Can: %d | Yeni Enerji: %d\n", maxSaglik, maxEnerji);
+			printf("BONUS: +10 Can ve Enerji kazanildi.\n");
+			
+			saglik += 10;
+			enerji += 10;
+			
+		} 
+		else {
+			
+			xp = 0;
+			printf("***MAX SEVIYE BONUSU: +10 Can ve Enerji***");
+			
+			saglik += 10;
+		    enerji += 10;
+		}
+		
+		
+		
+		if (saglik > maxSaglik) saglik = maxSaglik;
+		if (enerji > maxEnerji) enerji = maxEnerji;
+		
 			printf("\n======================================\n");
 		}
 		
@@ -94,6 +115,7 @@ int main(int argc, char *argv[]) {
 				printf("Ne yapmak istersin? [A] Avlan, [F] Savas, [P] Kesfet...\n");
 		}
 	}
+	
 		printf("Kararin nedir? >> ");
 		scanf(" %c", &komut);
 		
@@ -107,12 +129,12 @@ int main(int argc, char *argv[]) {
 			
 			// A - AVLAN
 			case 'A':
+				
 				if (enerji >= 15) {
 					enerji -= 15;
 					
-					int basariLimiti = (silahDurumu == 1) ? 70: 50; // Silah varsa sans artar
 					
-					if(sansPuani < basariLimiti){
+					if((silahDurumu == 1 && sansPuani < 70) || (silahDurumu == 0 && sansPuani < 40)){
 						printf("AVLANMA BASARILI! (+1 Yemek, +20XP)\n");
 						
 						yemekSayisi ++;
@@ -133,14 +155,23 @@ int main(int argc, char *argv[]) {
 					
 					// S - SIGINAK
 				case 'S':
+					
 					if (siginakDurumu == 1) {
 						printf("Zaten bir siginagin var.\n");
 					}
 					else if (enerji > 30) {
-						printf("Guvenli bir siginak buldun! (+40 XP)");
+						
 						enerji -= 20;
-						siginakDurumu = 1;
-						xp += 40;
+						
+						if (sansPuani < 60){
+							printf("Guvenli bir siginak buldun! (+40 XP)\n");
+						    siginakDurumu = 1;
+						    xp += 40;
+						}
+						else {
+							printf("KOTU SANS! Saatlerce aradin ama guvenli bir yer bulamadin.\n");
+							printf("Enerjin bosa gitti. (-20 Enerji)\n");
+						}
 					}
 					else {
 						printf("Siginak aramak icin yorgunsun. (Gereken Enerji: 30)\n");
@@ -149,6 +180,7 @@ int main(int argc, char *argv[]) {
 					
 					// R - DINLEN
 				case 'R':
+					
 					printf("Dinleniyorsun...\n");
 					int bonus = (siginakDurumu == 1) ? 30: 15;  // Siginak varsa daha cok iyilesir
 					enerji += bonus;
@@ -176,6 +208,7 @@ int main(int argc, char *argv[]) {
 					
 					// E - ENVANTER
 				case 'E':
+					
 					printf("\n--- CANTA ICERIGI ---\n");
                     printf("   Yemek : %d Adet\n", yemekSayisi);				
 					printf("   Silah : %s\n", silahDurumu ? "Yay ve Ok Var" : "Yok");
@@ -197,6 +230,11 @@ int main(int argc, char *argv[]) {
 					
 					// F - SAVAS 
 				case 'F':
+					
+					if (enerji >= 15) {
+						printf("Bolgedeki tehlikeleri temizliyorsun...(-10 Enerji)\n");
+						enerji -= 10;
+					
 					printf("VAHSI HAYVAN SALDIRISI BASLADI!\n");
 					for (i = 0; i < 4; i++) {
 						printf("%d. Dalga!\n", i);
@@ -222,15 +260,27 @@ int main(int argc, char *argv[]) {
 					if (saglik > 0) {
 						printf("TEHLIKEYI ATLATTIN! (+35 XP)\n");
 						xp += 35;
+						
+					}
+						
+					} else {
+						printf("Savasmak icin cok yorgunsun! (Gereken: 15 Enerji)\n");
+						printf("Once [R] ile dinlenip guc topla.\n");
 					}
 					break;
 					
 					// P - KESIF / SIFRE
 				case 'P':
-					printf("\nKilitli Sandik Buldun!\n");
+					if (enerji >= 15) {
+						printf("Ormanin derinliklerinde kesfe ciktin... (-10 Enerji)\n");
+						enerji -=10;
+						
+						printf("\nKilitli Sandik Buldun!\n");
 					int sifre = 8;
 					int deneme;
 					int kalanHak = 3;
+					
+					
 					
 					do{
 						printf("Sifreyi giriniz (0-10 arasi)  (Hak: %d): ", kalanHak);
@@ -258,15 +308,21 @@ int main(int argc, char *argv[]) {
 								xp +=15;
 								break;
 							}
-							else{
+							else {
 								printf("Yanlis sifre! Tekrar dene\n");
 								kalanHak --;
-								enerji -=5;
+								
+								if (enerji > 5) enerji -= 5;
 							}
 						} while (kalanHak > 0 && enerji > 0);
 						
 						if(kalanHak == 0) printf("Sandik acilamadi.\n");
-						break;
+						
+					} else {
+						printf ("Etrafi arastirmak icin cok yorgunsun! (Gereken: 15 Enerji)\n");
+						printf ("Once [R] ile dinlenmelisin.\n") ;
+					}
+					break;
 						
 						//CIKIS
 					case 'X':
@@ -277,6 +333,7 @@ int main(int argc, char *argv[]) {
 							printf("Gecersiz Komut! Tekrar dene.\n");
 					}
 					
+					// OLUM KONTROLU
 					if(saglik <= 0 && komut != 'X') {
 						printf("\n\n***************************************\n");
 						printf("      OYUN BITTI - HAYATTA KALAMADIN     \n");
